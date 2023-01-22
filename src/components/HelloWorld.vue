@@ -35,7 +35,7 @@ export default {
   },
   methods: {
     share () {
-      const text = `Check out the SpeechKit Demo and speak this text! ${this.voiceText} https://speechkit.jcompsolu.com`
+      const text = `Check out the SpeechKit Demo and speak this text! ${this.voiceText} ${document.URL}`
       try {
         if (!navigator.canShare) {
           this.clipBoard(text)
