@@ -1,13 +1,12 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <img alt="SpeechKit logo" src="https://github.com/mastashake08/speech-kit/blob/main/cover.png?raw=true" width="100%" height="500">
+    <HelloWorld msg="SpeechKit Demo"/>
   </div>
 </template>
 
 <script>
 import HelloWorld from './components/HelloWorld.vue'
-
 export default {
   name: 'App',
   components: {
@@ -23,6 +22,6 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+  margin-top: 0px;
 }
 </style>
