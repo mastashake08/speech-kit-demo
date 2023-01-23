@@ -6,7 +6,9 @@
       <a href="https://github.com/@mastashake08/speech-kit" target="_blank" rel="noopener">SpeechKit npm package</a>!
     </p>
     <textarea v-model="voiceText" @change="generateSSML"/>
-    <p>{{voiceSSML}}</p>
+    <p>
+      <span>{{voiceSSML}}</span>
+    </p>
     <ul>
     <select name="voices" id="voice-select"  :value="selectedIndex" @change="setVoice($event)">
       <option disabled value="-1">Select Voice</option>
