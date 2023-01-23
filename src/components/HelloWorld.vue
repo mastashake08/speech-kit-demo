@@ -7,6 +7,12 @@
     </p>
     <textarea v-model="voiceText"/>
     <ul>
+    <select name="voices" id="voice-select"  :value="selectedIndex" @change="setVoice($event)">
+      <option disabled value="-1">Select Voice</option>
+        <option v-for="(voice, index) in voices" :key="index" :value="index" >{{voice.name}} - {{voice.lang}}</option>
+    </select>
+  </ul>
+    <ul>
       <button @click="share" >Share</button>
       <button @click="speak">Speak</button>
       <button @click="listen" v-if="!isListen">Listen</button>
@@ -23,17 +29,24 @@ export default {
   props: {
     msg: String
   },
-  mounted () {
-    this.sk = new SpeechKit({rate: 0.85})
+   created () {
+    this.sk = new SpeechKit({continuous:true, rate: 0.85})
+  },
+  async mounted () {
+    this.voices = await this.sk.getVoices()
     document.addEventListener('onspeechkitresult', (e) =>  this.getText(e))
     document.addEventListener('onspeechkitspeechend', () =>  this.addPeriod())
     document.addEventListener('onspeechkitsoundend', () => this.addPeriod())
+
   },
   data () {
     return {
       voiceText: 'SPEAK ME',
       sk: {},
-      isListen: false
+      isListen: false,
+      voices: [],
+      selectedVoice: {},
+      selectedIndex: -1
     }
   },
   computed: {
@@ -42,6 +55,12 @@ export default {
     }
   },
   methods: {
+    setVoice (e) {
+      this.selectedVoice = this.voices[e.target.value]
+      this.selectedIndex = e.target.value
+      this.sk.setSpeechVoice(this.selectedVoice)
+
+    },
     share () {
       const text = `Check out the SpeechKit Demo and speak this text! ${this.voiceText} ${document.URL}`
       try {
@@ -65,7 +84,10 @@ export default {
       alert ('Text copied to clipboard')
     },
     speak () {
-      this.sk.speak(this.voiceText)
+      console.log(this.selectedVoice.name)
+      console.log(this.selectedVoice)
+
+      this.sk.speak(this.voiceText, this.selectedVoice)
     },
     listen () {
       this.sk.listen()
@@ -76,8 +98,12 @@ export default {
       this.isListen = !this.isListen
     },
     getText (evt) {
-      this.voiceText = evt.detail.transcript.charAt(0).toUpperCase() + evt.detail.transcript.slice(1)
-      this.addPeriod()
+      this.voiceText = ''
+      const results = evt.detail.results
+      for(let i = 0; i < results.length; ++i) {
+        this.voiceText += ` ${results[i][0].transcript.charAt(1).toUpperCase()}${results[i][0].transcript.slice(2)}`
+        this.addPeriod()
+      }
     },
     generateSSML () {
       const xml = this.sk.createSSML(this.voiceText)
