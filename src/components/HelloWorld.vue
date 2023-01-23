@@ -25,13 +25,20 @@ export default {
   },
   mounted () {
     this.sk = new SpeechKit({rate: 0.85})
-    document.addEventListener('onspeechkitresult', (e) => this.getText(e))
+    document.addEventListener('onspeechkitresult', (e) =>  this.getText(e))
+    document.addEventListener('onspeechkitspeechend', () =>  this.addPeriod())
+    document.addEventListener('onspeechkitsoundend', () => this.addPeriod())
   },
   data () {
     return {
       voiceText: 'SPEAK ME',
       sk: {},
       isListen: false
+    }
+  },
+  computed: {
+    getSanitizedText () {
+      return this.voiceText
     }
   },
   methods: {
@@ -69,11 +76,17 @@ export default {
       this.isListen = !this.isListen
     },
     getText (evt) {
-      this.voiceText = evt.detail.transcript
+      this.voiceText = evt.detail.transcript.charAt(0).toUpperCase() + evt.detail.transcript.slice(1)
+      this.addPeriod()
     },
     generateSSML () {
       const xml = this.sk.createSSML(this.voiceText)
       this.clipBoard(xml)
+    },
+    addPeriod () {
+      if(this.voiceText.charAt(this.voiceText.length - 1) !== '.'){
+        this.voiceText = this.voiceText + '.'
+      }
     }
   }
 }
