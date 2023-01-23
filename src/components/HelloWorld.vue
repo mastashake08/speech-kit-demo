@@ -24,7 +24,7 @@ export default {
     msg: String
   },
   mounted () {
-    this.sk = new SpeechKit({rate: 0.75})
+    this.sk = new SpeechKit({rate: 0.85})
     document.addEventListener('onspeechkitresult', (e) => this.getText(e))
   },
   data () {
