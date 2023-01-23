@@ -18,6 +18,7 @@
       <button @click="listen" v-if="!isListen">Listen</button>
       <button @click="stopListen" v-else>Stop Listen</button>
       <button @click="generateSSML">Generate SSML</button>
+      <button @click="addBreak">Add Break</button>
     </ul>
   </div>
 </template>
@@ -41,7 +42,7 @@ export default {
   },
   data () {
     return {
-      voiceText: 'SPEAK ME',
+      voiceText: 'SPEAK ME. Hello world.',
       sk: {},
       isListen: false,
       voices: [],
@@ -104,6 +105,14 @@ export default {
       if(this.voiceText.charAt(this.voiceText.length - 1) !== '.'){
         this.voiceText = this.voiceText + '.'
       }
+    },
+    addBreak () {
+      let selection = window.getSelection();
+      selection.modify('move', 'backward', "sentence");
+      selection.modify('extend', 'forward', "sentence")
+
+      console.log('SELECTION', selection.toString())
+      this.voiceText = this.sk.addBreakSSML(this.voiceText, selection.toString(), selection.focusOffset)
     }
   }
 }
