@@ -29,14 +29,15 @@ export default {
   props: {
     msg: String
   },
-   created () {
+  mounted () {
     this.sk = new SpeechKit({continuous:true, rate: 0.85})
-  },
-  async mounted () {
-    this.voices = await this.sk.getVoices()
+    this.voices = this.sk.getVoices()
+
     document.addEventListener('onspeechkitresult', (e) =>  this.getText(e))
     document.addEventListener('onspeechkitspeechend', () =>  this.addPeriod())
     document.addEventListener('onspeechkitsoundend', () => this.addPeriod())
+    document.addEventListener('onspeechkitvoiceschanged', (e) =>  { console.log(e); this.voices = e.detail.voices})
+
 
   },
   data () {
