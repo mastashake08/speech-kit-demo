@@ -29,16 +29,15 @@ export default {
   props: {
     msg: String
   },
-  mounted () {
+  created () {
     this.sk = new SpeechKit({continuous:true, rate: 0.85})
-    this.voices = this.sk.getVoices()
-
+    setTimeout(() => {
+      this.voices = this.sk.getVoices()
+    }, "1000")
     document.addEventListener('onspeechkitresult', (e) =>  this.getText(e))
     document.addEventListener('onspeechkitspeechend', () =>  this.addPeriod())
     document.addEventListener('onspeechkitsoundend', () => this.addPeriod())
-    document.addEventListener('onspeechkitvoiceschanged', (e) =>  { console.log(e); this.voices = e.detail.voices})
-
-
+    document.addEventListener('onspeechkitvoiceschanged', () =>  {  this.sk.getVoices()})
   },
   data () {
     return {
@@ -48,11 +47,6 @@ export default {
       voices: [],
       selectedVoice: {},
       selectedIndex: -1
-    }
-  },
-  computed: {
-    getSanitizedText () {
-      return this.voiceText
     }
   },
   methods: {
@@ -85,9 +79,6 @@ export default {
       alert ('Text copied to clipboard')
     },
     speak () {
-      console.log(this.selectedVoice.name)
-      console.log(this.selectedVoice)
-
       this.sk.speak(this.voiceText, this.selectedVoice)
     },
     listen () {
