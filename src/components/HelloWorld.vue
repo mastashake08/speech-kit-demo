@@ -70,6 +70,7 @@ export default {
     },
     getText (evt) {
       this.voiceText = evt.detail.transcript
+      console.log(this.sk.createSSML(this.voiceText))
     }
   }
 }
