@@ -73,7 +73,6 @@ export default {
     },
     async clipBoard (text, type = "text/plain") {
       const blob = new Blob([text], { type });
-
       const data = [new window.ClipboardItem({ [type]: blob })];
       await navigator.clipboard.write(data)
       alert ('Text copied to clipboard')
@@ -125,5 +124,12 @@ li {
 }
 a {
   color: #42b983;
+}
+textarea {
+    width: 70%;
+    height: 200px;
+    -webkit-box-sizing: border-box;
+       -moz-box-sizing: border-box;
+            box-sizing: border-box;
 }
 </style>
