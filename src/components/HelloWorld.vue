@@ -5,7 +5,8 @@
       Simple demo to demonstrate the Web Speech API using the
       <a href="https://github.com/@mastashake08/speech-kit" target="_blank" rel="noopener">SpeechKit npm package</a>!
     </p>
-    <textarea v-model="voiceText"/>
+    <textarea v-model="voiceText" @change="generateSSML"/>
+    <p>{{voiceSSML}}</p>
     <ul>
     <select name="voices" id="voice-select"  :value="selectedIndex" @change="setVoice($event)">
       <option disabled value="-1">Select Voice</option>
@@ -18,7 +19,6 @@
       <button @click="shutup" v-else>Shut Up</button>
       <button @click="listen" v-if="!isListen">Listen</button>
       <button @click="stopListen" v-else>Stop Listen</button>
-      <button @click="generateSSML">Generate SSML</button>
       <button @click="addBreak">Add Break</button>
     </ul>
   </div>
@@ -37,6 +37,7 @@ export default {
       this.voices = this.sk.getVoices()
       this.selectedVoice = this.voices[0]
     }, "1000")
+    this.generateSSML()
     document.addEventListener('onspeechkitresult', (e) =>  this.getText(e))
     document.addEventListener('onspeechkitspeechend', () =>  this.addPeriod())
     document.addEventListener('onspeechkitsoundend', () => this.addPeriod())
@@ -54,7 +55,13 @@ If you select a portion of a sentence you want to pause on before speaking and t
       voices: [],
       selectedVoice: {},
       selectedIndex: -1,
-      isPlaying: false
+      isPlaying: false,
+      voiceSSML: null
+    }
+  },
+  watch: {
+    voiceText: function() {
+      this.generateSSML()
     }
   },
   methods: {
@@ -71,8 +78,7 @@ If you select a portion of a sentence you want to pause on before speaking and t
           this.clipBoard(text)
         } else {
           navigator.share({
-            text: text,
-            url: 'https://speechkit.jcompsolu.com'
+            url: navigator.URL
           })
         }
       } catch (e) {
@@ -86,8 +92,7 @@ If you select a portion of a sentence you want to pause on before speaking and t
       alert ('Text copied to clipboard')
     },
     speak () {
-      console.log(this.voiceText)
-      this.sk.speak(this.voiceText, this.selectedVoice)
+      this.sk.speak(this.voiceSSML, this.selectedVoice)
       this.isPlaying = !this.isPlaying
     },
     shutup () {
@@ -112,7 +117,7 @@ If you select a portion of a sentence you want to pause on before speaking and t
     },
     generateSSML () {
       const xml = this.sk.createSSML(this.voiceText)
-      this.clipBoard(xml)
+      this.voiceSSML = xml
     },
     addPeriod () {
       if(this.voiceText.charAt(this.voiceText.length - 1) !== '.'){
@@ -123,9 +128,7 @@ If you select a portion of a sentence you want to pause on before speaking and t
       let selection = window.getSelection();
       selection.modify('move', 'backward', "sentence");
       selection.modify('extend', 'forward', "sentence")
-
-      console.log('SELECTION', selection.toString())
-      this.voiceText = this.sk.addBreakSSML(this.voiceText, selection.toString(), selection.focusOffset)
+      this.voiceSSML = this.sk.addBreakSSML(this.voiceText, selection.toString(), selection.focusOffset)
     }
   }
 }
