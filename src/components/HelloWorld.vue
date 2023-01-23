@@ -11,6 +11,7 @@
       <button @click="speak">Speak</button>
       <button @click="listen" v-if="!isListen">Listen</button>
       <button @click="stopListen" v-else>Stop Listen</button>
+      <button @click="generateSSML">Generate SSML</button>
     </ul>
   </div>
 </template>
@@ -23,7 +24,7 @@ export default {
     msg: String
   },
   mounted () {
-    this.sk = new SpeechKit({rate: 0.85})
+    this.sk = new SpeechKit({rate: 0.75})
     document.addEventListener('onspeechkitresult', (e) => this.getText(e))
   },
   data () {
@@ -49,8 +50,7 @@ export default {
         this.clipBoard(text)
       }
     },
-    async clipBoard (text) {
-      const type = "text/plain";
+    async clipBoard (text, type = "text/plain") {
       const blob = new Blob([text], { type });
 
       const data = [new window.ClipboardItem({ [type]: blob })];
@@ -70,7 +70,10 @@ export default {
     },
     getText (evt) {
       this.voiceText = evt.detail.transcript
-      console.log(this.sk.createSSML(this.voiceText))
+    },
+    generateSSML () {
+      const xml = this.sk.createSSML(this.voiceText)
+      this.clipBoard(xml)
     }
   }
 }
