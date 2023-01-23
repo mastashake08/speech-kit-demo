@@ -14,7 +14,8 @@
   </ul>
     <ul>
       <button @click="share" >Share</button>
-      <button @click="speak">Speak</button>
+      <button @click="speak" v-if="!isPlaying">Speak</button>
+      <button @click="shutup" v-else>Shut Up</button>
       <button @click="listen" v-if="!isListen">Listen</button>
       <button @click="stopListen" v-else>Stop Listen</button>
       <button @click="generateSSML">Generate SSML</button>
@@ -30,10 +31,11 @@ export default {
   props: {
     msg: String
   },
-  created () {
+  mounted () {
     this.sk = new SpeechKit({continuous:true, rate: 0.85})
     setTimeout(() => {
       this.voices = this.sk.getVoices()
+      this.selectedVoice = this.voices[0]
     }, "1000")
     document.addEventListener('onspeechkitresult', (e) =>  this.getText(e))
     document.addEventListener('onspeechkitspeechend', () =>  this.addPeriod())
@@ -42,12 +44,17 @@ export default {
   },
   data () {
     return {
-      voiceText: 'SPEAK ME. Hello world.',
+      voiceText: `Welcome to the SpeechKit demo hosted on Github Pages! To get started you can select a voice from the dropdown and click the speak button to hear these instructions. You can type text or hit the listen button to enable speech recognition and change the text in the textarea.
+
+If you click the Generate SSML button, then your text will be converted to SSML format to export in other voice-powered applications such as Amazon Alexa Polly and Twilio.
+
+If you select a portion of a sentence you want to pause on before speaking and then click the Add Break button, your text will be converted to SSML with a 200ms break before said sentence. More features are coming to edit SSML data in the future, for now, HAVE FUN!`,
       sk: {},
       isListen: false,
       voices: [],
       selectedVoice: {},
-      selectedIndex: -1
+      selectedIndex: -1,
+      isPlaying: false
     }
   },
   methods: {
@@ -79,7 +86,13 @@ export default {
       alert ('Text copied to clipboard')
     },
     speak () {
+      console.log(this.voiceText)
       this.sk.speak(this.voiceText, this.selectedVoice)
+      this.isPlaying = !this.isPlaying
+    },
+    shutup () {
+      this.sk.shutup()
+      this.isPlaying = !this.isPlaying
     },
     listen () {
       this.sk.listen()
