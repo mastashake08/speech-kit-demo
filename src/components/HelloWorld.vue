@@ -7,7 +7,9 @@
     </p>
     <textarea v-model="voiceText" @change="generateSSML"/>
     <p>
-      <span><p>{{voiceSSML}}</p></span>
+      <span>
+        <p>{{voiceSSML}}</p>
+      </span>
     </p>
     <ul>
     <select name="voices" id="voice-select"  :value="selectedIndex" @change="setVoice($event)">
