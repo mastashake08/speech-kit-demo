@@ -23,8 +23,7 @@
       <button @click="shutup" v-else>Shut Up</button>
       <button @click="listen" v-if="!isListen">Listen</button>
       <button @click="stopListen" v-else>Stop Listen</button>
-      <button @click="addBreak">Add Break</button>
-      <button @click="addEmphasis">Add Emphasis</button>
+      <button @click="startStreaming">Save Audio File</button>
     </ul>
   </div>
 </template>
@@ -37,6 +36,7 @@ export default {
     msg: String
   },
   mounted () {
+    this.mediaStream_ = new MediaStream()
     this.sk = new SpeechKit({continuous:true, rate: 0.85})
     setTimeout(() => {
       this.voices = this.sk.getVoices()
@@ -63,7 +63,10 @@ If you select a portion of a sentence you want to pause on before speaking and t
       isPlaying: false,
       voiceSSML: null,
       oldVoiceSSML: '',
-      SSMLTagIndicies: []
+      SSMLTagIndicies: [],
+      mediaRecorder: {},
+      mediaStream_: {},
+      chunks: []
     }
   },
   watch: {
@@ -151,7 +154,46 @@ If you select a portion of a sentence you want to pause on before speaking and t
       selection.modify('extend', 'forward', "sentence")
       return selection
     },
-
+    saveBlob ()  {
+      const a = document.createElement('a');
+      document.body.appendChild(a);
+      a.style.display = 'none';
+      const blob = new Blob(this.chunks)
+      const filename = `${Date.now()}.webm`
+      const url = URL.createObjectURL(blob);
+      a.href = url;
+      a.download = filename;
+      a.click()
+    },
+    async startStreaming () {
+      const stream = await navigator.mediaDevices.getDisplayMedia({
+        video: true,
+        audio: true
+      })
+      this.mediaRecorder = new MediaRecorder(stream)
+      this.isPlaying = ! this.isPlaying
+      const tracks = await stream.getAudioTracks()
+      console.log(tracks)
+      const track = await stream.getAudioTracks()[0]
+      document.addEventListener('onspeechkitutterenceend', () => {
+        this.mediaRecorder.stop()
+      })
+      this.mediaStream_.addTrack(track)
+      this.mediaRecorder.ondataavailable = event => {
+        if (event.data.size > 0) {
+          this.chunks.push(event.data);
+        }
+      }
+      this.mediaRecorder.onstop = () => {
+        this.sk.shutup()
+        track.stop();
+        this.mediaStream_.getAudioTracks()[0].stop();
+        this.mediaStream_.removeTrack(track);
+        this.saveBlob()
+      }
+      this.mediaRecorder.start()
+      this.speak()
+    }
   }
 }
 </script>
