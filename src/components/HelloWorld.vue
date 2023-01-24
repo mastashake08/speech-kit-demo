@@ -79,24 +79,23 @@ If you select a portion of a sentence you want to pause on before speaking and t
 
     },
     share () {
-      const text = `Check out the SpeechKit Demo and speak this text! ${this.voiceText} ${document.URL}`
       try {
         if (!navigator.canShare) {
-          this.clipBoard(text)
+          this.clipBoard(this.voiceSSML)
         } else {
           navigator.share({
-            url: navigator.URL
+            text: this.voiceSSML
           })
         }
       } catch (e) {
-        this.clipBoard(text)
+        this.clipBoard(this.voiceSSML)
       }
     },
     async clipBoard (text, type = "text/plain") {
       const blob = new Blob([text], { type });
       const data = [new window.ClipboardItem({ [type]: blob })];
       await navigator.clipboard.write(data)
-      alert ('Text copied to clipboard')
+      alert ('SSML copied to clipboard!')
     },
     speak () {
       this.sk.speak(this.voiceSSML, this.selectedVoice)
