@@ -172,8 +172,6 @@ If you select a portion of a sentence you want to pause on before speaking and t
       })
       this.mediaRecorder = new MediaRecorder(stream)
       this.isPlaying = ! this.isPlaying
-      const tracks = await stream.getAudioTracks()
-      console.log(tracks)
       const track = await stream.getAudioTracks()[0]
       document.addEventListener('onspeechkitutterenceend', () => {
         this.mediaRecorder.stop()
