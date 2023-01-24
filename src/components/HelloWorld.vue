@@ -22,6 +22,7 @@
       <button @click="listen" v-if="!isListen">Listen</button>
       <button @click="stopListen" v-else>Stop Listen</button>
       <button @click="addBreak">Add Break</button>
+      <button @click="addEmphasis">Add Emphasis</button>
     </ul>
   </div>
 </template>
@@ -58,7 +59,8 @@ If you select a portion of a sentence you want to pause on before speaking and t
       selectedVoice: {},
       selectedIndex: -1,
       isPlaying: false,
-      voiceSSML: null
+      voiceSSML: null,
+      oldVoiceSSML: ''
     }
   },
   watch: {
@@ -119,6 +121,16 @@ If you select a portion of a sentence you want to pause on before speaking and t
     },
     generateSSML () {
       const xml = this.sk.createSSML(this.voiceText)
+      console.log('XML: ', xml)
+      console.log('voiceSSML', this.voiceSSML)
+      if(this.voiceSSML !== null) {
+        this.oldVoiceSSML = this.voiceSSML
+      } else {
+        console.log('null')
+        this.voiceSSML = this.oldVoiceSSML = xml
+        console.log('voiceSSML', this.voiceSSML)
+      }
+
       this.voiceSSML = xml
     },
     addPeriod () {
@@ -131,6 +143,16 @@ If you select a portion of a sentence you want to pause on before speaking and t
       selection.modify('move', 'backward', "sentence");
       selection.modify('extend', 'forward', "sentence")
       this.voiceSSML = this.sk.addBreakSSML(this.voiceText, selection.toString(), selection.focusOffset)
+    },
+    addEmphasis (){
+      let selection = window.getSelection();
+      selection.modify('move', 'backward', "sentence");
+      selection.modify('extend', 'forward', "sentence")
+      this.voiceSSML = this.sk.addEmphasisSSML(this.voiceText, selection.toString(), selection.focusOffset)
+
+      console.log('OLD', this.oldVoiceSSML)
+      console.log('NEW', this.voiceSSML)
+      this.oldVoiceSSML = this.voiceSSML
     }
   }
 }
