@@ -7,7 +7,7 @@
     </p>
     <textarea v-model="voiceText" @change="generateSSML"/>
     <p>
-      <span>{{voiceSSML}}</span>
+      <span><p>{{voiceSSML}}</p></span>
     </p>
     <ul>
     <select name="voices" id="voice-select"  :value="selectedIndex" @change="setVoice($event)">
@@ -60,7 +60,8 @@ If you select a portion of a sentence you want to pause on before speaking and t
       selectedIndex: -1,
       isPlaying: false,
       voiceSSML: null,
-      oldVoiceSSML: ''
+      oldVoiceSSML: '',
+      SSMLTagIndicies: []
     }
   },
   watch: {
@@ -121,14 +122,10 @@ If you select a portion of a sentence you want to pause on before speaking and t
     },
     generateSSML () {
       const xml = this.sk.createSSML(this.voiceText)
-      console.log('XML: ', xml)
-      console.log('voiceSSML', this.voiceSSML)
       if(this.voiceSSML !== null) {
         this.oldVoiceSSML = this.voiceSSML
       } else {
-        console.log('null')
         this.voiceSSML = this.oldVoiceSSML = xml
-        console.log('voiceSSML', this.voiceSSML)
       }
 
       this.voiceSSML = xml
@@ -139,21 +136,21 @@ If you select a portion of a sentence you want to pause on before speaking and t
       }
     },
     addBreak () {
-      let selection = window.getSelection();
-      selection.modify('move', 'backward', "sentence");
-      selection.modify('extend', 'forward', "sentence")
+      let selection = this.getCursorSelection()
       this.voiceSSML = this.sk.addBreakSSML(this.voiceText, selection.toString(), selection.focusOffset)
     },
-    addEmphasis (){
+    addEmphasis () {
+      let selection = this.getCursorSelection()
+      this.voiceSSML = this.sk.addEmphasisSSML(this.voiceText, selection.toString(), selection.focusOffset)
+      this.oldVoiceSSML = this.voiceSSML
+    },
+    getCursorSelection () {
       let selection = window.getSelection();
       selection.modify('move', 'backward', "sentence");
       selection.modify('extend', 'forward', "sentence")
-      this.voiceSSML = this.sk.addEmphasisSSML(this.voiceText, selection.toString(), selection.focusOffset)
+      return selection
+    },
 
-      console.log('OLD', this.oldVoiceSSML)
-      console.log('NEW', this.voiceSSML)
-      this.oldVoiceSSML = this.voiceSSML
-    }
   }
 }
 </script>
@@ -180,5 +177,13 @@ textarea {
     -webkit-box-sizing: border-box;
        -moz-box-sizing: border-box;
             box-sizing: border-box;
+}
+span {
+    width: 100%;
+    max-width: 80%;
+    text-align: center;
+}
+span > p {
+  border: 1px solid red;
 }
 </style>
